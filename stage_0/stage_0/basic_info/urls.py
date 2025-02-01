@@ -1,6 +1,6 @@
+from .views import my_model_view
 from django.urls import path
-from .views import api_info
 
 urlpatterns = [
-    path('', api_info),
+    path('api/', my_model_view)
 ]

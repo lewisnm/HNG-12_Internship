@@ -1,12 +1,21 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.utils.timezone import now
+from django.utils import timezone
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import MyModelSerializer
+from .models import MyModel
 
-def api_info(request):
-    data = {
-        "email": "lewisnmutiso@gmail.com",
-        "current_datetime": now().isoformat(),
-        "github_url": "https://github.com/lewisnm/HNG-12_Internship.git"
-    }
-    return JsonResponse(data)
+@api_view(['GET'])
+def my_model_view(request):
+    try:
+        instance = MyModel.objects.latest('current_datetime')  # Use the correct field name
+    except MyModel.DoesNotExist:
+        return Response({"error": "No data found"}, status=404)
+    
+    serializer = MyModelSerializer(instance)
+    data = serializer.data
+
+    current_time = timezone.now().replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+    data["current_datetime"] = current_time
+    
+    return Response(data, status=200)
 
